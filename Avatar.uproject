@@ -7,7 +7,12 @@
 		{
 			"Name": "Avatar",
 			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine",
+				"AIModule",
+				"UMG"
+			]
 		}
 	],
 	"Plugins": [
@@ -19,11 +24,11 @@
 			]
 		},
 		{
-			"Name": "HttpBlueprint",
+			"Name": "StateTree",
 			"Enabled": true
 		},
 		{
-			"Name": "VaRest",
+			"Name": "GameplayStateTree",
 			"Enabled": true
 		}
 	]
