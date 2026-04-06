@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 public class AvatarEditorTarget : TargetRules
 {
-	public AvatarEditorTarget( TargetInfo Target) : base(Target)
+	public AvatarEditorTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Editor;
 		DefaultBuildSettings = BuildSettingsVersion.V6;
