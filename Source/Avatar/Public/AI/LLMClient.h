@@ -17,10 +17,8 @@ class AVATAR_API ULLMClient : public UObject
 public:
 	ULLMClient();
     
-	
 	void SendPrompt(const FString& Prompt, FLLMResponseDelegate ResponseCallback);
     
-	// Настройки
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LLM Settings")
 	FString ModelName = TEXT("qwen2.5:1.5b");
     
@@ -31,7 +29,7 @@ public:
 	int32 MaxTokens = 500;
     
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LLM Settings")
-	FString APIEndpoint = TEXT("http://localhost:11434/api/generate");
+	FString APIEndpoint = TEXT("http://127.0.0.1:11434/api/generate");
     
 private:
 	void OnResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful, FLLMResponseDelegate Callback);

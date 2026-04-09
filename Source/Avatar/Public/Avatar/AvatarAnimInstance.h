@@ -15,19 +15,6 @@ public:
     virtual void NativeInitializeAnimation() override;
     virtual void NativeUpdateAnimation(float DeltaSeconds) override;
     
-    // Основные параметры анимации
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Facial")
-    float JawOpen = 0.0f;
-    
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Facial")
-    float LipsPucker = 0.0f;
-    
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Facial")
-    float MouthSmile = 0.0f;
-    
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Facial")
-    float EyeBlink = 0.0f;
-    
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
     bool bIsTalking = false;
     
@@ -37,7 +24,12 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
     float EmotionalIntensity = 1.0f;
     
-    // Управление анимацией
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Facial")
+    float EyeBlink = 0.0f;
+    
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Facial")
+    float JawOpen = 0.0f;
+    
     UFUNCTION(BlueprintCallable, Category = "Facial")
     void SetTalking(bool bTalking);
     
@@ -47,17 +39,14 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Facial")
     void SetEmotion(const FString& Emotion, float Intensity = 1.0f);
     
-    UFUNCTION(BlueprintCallable, Category = "Facial")
-    void UpdateLipSync(float JawIntensity);
-    
 private:
     void UpdateBlinking(float DeltaSeconds);
     
-    float TimeSinceLastBlink;
-    float NextBlinkTime;
-    float BlinkDuration;
-    bool bIsBlinking;
-    float BlinkProgress;
+    float TimeSinceLastBlink = 0.0f;
+    float NextBlinkTime = 0.0f;
+    float BlinkDuration = 0.15f;
+    bool bIsBlinking = false;
+    float BlinkProgress = 0.0f;
     
-    FString CurrentEmotion;
+    FString CurrentEmotion = TEXT("neutral");
 };

@@ -4,7 +4,6 @@
 #include "GameFramework/Character.h"
 #include "AvatarCharacter.generated.h"
 
-// Forward declarations
 class UFacialAnimationComponent;
 class UAudioComponent;
 class UAvatarGameInstance;
@@ -19,21 +18,15 @@ public:
     
 	virtual void BeginPlay() override;
     
-	// Компоненты
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UFacialAnimationComponent* FacialAnimation;
     
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UAudioComponent* VoiceAudioComponent;
     
-	// Управление аватаром
 	UFUNCTION(BlueprintCallable, Category = "Avatar")
 	void Speak(const FString& Text, float Duration = 0.0f);
     
-	UFUNCTION(BlueprintCallable, Category = "Avatar")
-	void SetIdleAnimation(bool bIsIdle);
-    
-	// События
 	UFUNCTION(BlueprintImplementableEvent, Category = "Avatar")
 	void OnStartSpeaking();
     

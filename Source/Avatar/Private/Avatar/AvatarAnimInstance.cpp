@@ -1,14 +1,8 @@
 ﻿#include "Avatar/AvatarAnimInstance.h"
-#include "GameFramework/Character.h"
 
 UAvatarAnimInstance::UAvatarAnimInstance()
 {
-    TimeSinceLastBlink = 0.0f;
     NextBlinkTime = FMath::RandRange(2.0f, 5.0f);
-    BlinkDuration = 0.15f;
-    bIsBlinking = false;
-    BlinkProgress = 0.0f;
-    CurrentEmotion = TEXT("neutral");
 }
 
 void UAvatarAnimInstance::NativeInitializeAnimation()
@@ -19,7 +13,6 @@ void UAvatarAnimInstance::NativeInitializeAnimation()
 void UAvatarAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
     Super::NativeUpdateAnimation(DeltaSeconds);
-    
     UpdateBlinking(DeltaSeconds);
 }
 
@@ -37,18 +30,6 @@ void UAvatarAnimInstance::SetEmotion(const FString& Emotion, float Intensity)
 {
     CurrentEmotion = Emotion;
     EmotionalIntensity = FMath::Clamp(Intensity, 0.0f, 1.0f);
-}
-
-void UAvatarAnimInstance::UpdateLipSync(float JawIntensity)
-{
-    if (bIsTalking)
-    {
-        JawOpen = JawIntensity;
-    }
-    else
-    {
-        JawOpen = 0.0f;
-    }
 }
 
 void UAvatarAnimInstance::UpdateBlinking(float DeltaSeconds)

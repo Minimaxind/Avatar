@@ -4,7 +4,6 @@
 
 AAvatarGameMode::AAvatarGameMode()
 {
-	// Устанавливаем класс персонажа по умолчанию
 	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnClassFinder(TEXT("/Game/Blueprints/BP_AvatarCharacter"));
 	if (PlayerPawnClassFinder.Class != nullptr)
 	{
@@ -18,7 +17,6 @@ void AAvatarGameMode::BeginPlay()
     
 	SetupInputMode();
     
-	// Создаем и показываем главное меню
 	if (MainMenuWidgetClass)
 	{
 		MainMenuWidget = CreateWidget<UUserWidget>(GetWorld(), MainMenuWidgetClass);

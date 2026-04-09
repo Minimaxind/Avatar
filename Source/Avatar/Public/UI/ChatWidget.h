@@ -5,10 +5,8 @@
 #include "Components/EditableTextBox.h"
 #include "Components/ScrollBox.h"
 #include "Components/Button.h"
-#include "Components/TextBlock.h"
 #include "ChatWidget.generated.h"
 
-// Forward declaration
 class UAvatarGameInstance;
 
 UCLASS()
@@ -19,7 +17,6 @@ class AVATAR_API UChatWidget : public UUserWidget
 public:
 	virtual void NativeConstruct() override;
     
-	// Элементы UI
 	UPROPERTY(meta = (BindWidget))
 	UEditableTextBox* MessageInputBox;
     
@@ -29,7 +26,6 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UButton* SendButton;
     
-	// Класс для сообщений
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
 	TSubclassOf<UUserWidget> MessageWidgetClass;
     

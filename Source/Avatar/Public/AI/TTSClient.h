@@ -24,17 +24,15 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "TTS")
 	FOnSpeechEnd OnSpeechEnd;
     
-	// Настройки голоса
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TTS Settings")
-	int32 SpeechRate = 0;  // -10 до 10, 0 = нормально
+	int32 SpeechRate = 0;
     
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TTS Settings")
-	int32 SpeechVolume = 100;  // 0-100
+	int32 SpeechVolume = 100;
     
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TTS Settings")
-	FString VoiceName = TEXT("Microsoft Irina Desktop");  // Русский женский
+	FString VoiceName = TEXT("Microsoft Irina Desktop");
     
-	// ВАЖНО: Добавляем объявление функции GetWorld
 	virtual UWorld* GetWorld() const override;
     
 private:

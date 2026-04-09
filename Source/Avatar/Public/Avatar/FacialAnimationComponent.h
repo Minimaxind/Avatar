@@ -4,43 +4,85 @@
 #include "Components/ActorComponent.h"
 #include "FacialAnimationComponent.generated.h"
 
+class UAvatarAnimInstance;
+class UAnimSequence;
+
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class AVATAR_API UFacialAnimationComponent : public UActorComponent
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
     
 public:
-	UFacialAnimationComponent();
+    UFacialAnimationComponent();
     
-	// Инициализация
-	virtual void BeginPlay() override;
+    virtual void BeginPlay() override;
+    virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
     
-	// Управление анимацией
-	UFUNCTION(BlueprintCallable, Category = "Facial Animation")
-	void StartTalking(float Duration);
+    UFUNCTION(BlueprintCallable, Category = "Facial Animation")
+    void StartTalking(const FString& Text, float Duration = 0.0f);
     
-	UFUNCTION(BlueprintCallable, Category = "Facial Animation")
-	void StopTalking();
+    UFUNCTION(BlueprintCallable, Category = "Facial Animation")
+    void StopTalking();
     
-	UFUNCTION(BlueprintCallable, Category = "Facial Animation")
-	void SetEmotion(const FString& Emotion);
+    UFUNCTION(BlueprintCallable, Category = "Facial Animation")
+    void SetEmotion(const FString& Emotion, float Intensity = 1.0f);
     
-	// Морф-таргеты для лицевой анимации
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Morph Targets")
-	TMap<FString, float> MorphTargets;
+    // Viseme Animations
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Viseme Animations")
+    UAnimSequence* AS_A1;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Viseme Animations")
+    UAnimSequence* AS_O1;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Viseme Animations")
+    UAnimSequence* AS_Yo1;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Viseme Animations")
+    UAnimSequence* AS_U1;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Viseme Animations")
+    UAnimSequence* AS_E1;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Viseme Animations")
+    UAnimSequence* AS_I1;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Viseme Animations")
+    UAnimSequence* AS_B1;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Viseme Animations")
+    UAnimSequence* AS_V1;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Viseme Animations")
+    UAnimSequence* AS_M1;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Viseme Animations")
+    UAnimSequence* AS_T1;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Viseme Animations")
+    UAnimSequence* AS_S1;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Viseme Animations")
+    UAnimSequence* AS_Sh1;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Viseme Animations")
+    UAnimSequence* AS_Ch1;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Viseme Animations")
+    UAnimSequence* AS_K1;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Viseme Animations")
+    UAnimSequence* AS_L1;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Viseme Animations")
+    UAnimSequence* AS_R1;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Viseme Animations")
+    UAnimSequence* AS_Idle;
     
-	// Ссылка на skeletal mesh
-	UPROPERTY()
-	class USkeletalMeshComponent* SkeletalMesh;
+    UPROPERTY()
+    class USkeletalMeshComponent* SkeletalMesh;
+    
+    UPROPERTY()
+    UAvatarAnimInstance* AnimInstance;
     
 private:
-	// Обновление морф-таргетов для речи
-	void UpdateLipSync();
+    void PlayCurrentViseme();
+    UAnimSequence* GetAnimationForChar(TCHAR Char);
+    bool IsVowel(TCHAR Char);
+    void TestAnimation();
+    bool IsAnimationCompatible(UAnimSequence* Animation);
     
-	FTimerHandle LipSyncTimerHandle;
-	float CurrentSpeechTime;
-	float SpeechDuration;
+    TMap<TCHAR, UAnimSequence*> CharToAnimMap;
+    TArray<UAnimSequence*> VisemeSequence;
     
-	// Карта фонем к морф-таргетам
-	TMap<FString, FString> PhonemeToMorphMap;
+    int32 CurrentVisemeIndex = 0;
+    float CurrentVisemeDuration = 0.1f;
+    float TimeInCurrentViseme = 0.0f;
+    float CurrentSpeechTime = 0.0f;
+    float SpeechDuration = 0.0f;
+    bool bIsTalking = false;
 };

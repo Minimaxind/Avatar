@@ -4,10 +4,8 @@
 #include "Blueprint/UserWidget.h"
 #include "MainMenuWidget.generated.h"
 
-// Forward declarations
 class UButton;
 class UTextBlock;
-class UImage;
 
 UCLASS()
 class AVATAR_API UMainMenuWidget : public UUserWidget
@@ -26,10 +24,6 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* TitleText;
     
-	UPROPERTY(meta = (BindWidget))
-	UImage* BackgroundImage;
-    
-	// Класс виджета чата
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
 	TSubclassOf<UUserWidget> ChatWidgetClass;
     

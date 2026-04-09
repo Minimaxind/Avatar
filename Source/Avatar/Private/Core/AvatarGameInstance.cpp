@@ -1,6 +1,9 @@
 ﻿#include "Core/AvatarGameInstance.h"
 #include "AI/LLMClient.h"
 #include "AI/TTSClient.h"
+#include "Avatar/AvatarCharacter.h"
+#include "Kismet/GameplayStatics.h"
+#include "Engine/World.h"
 
 UAvatarGameInstance::UAvatarGameInstance()
 {
@@ -8,68 +11,75 @@ UAvatarGameInstance::UAvatarGameInstance()
 
 void UAvatarGameInstance::Init()
 {
-	Super::Init();
+    Super::Init();
     
-	LLMClient = NewObject<ULLMClient>(this);
-	TTSClient = NewObject<UTTSClient>(this);
+    LLMClient = NewObject<ULLMClient>(this);
+    TTSClient = NewObject<UTTSClient>(this);
+    
+    if (TTSClient)
+    {
+        TTSClient->OnSpeechStart.AddDynamic(this, &UAvatarGameInstance::OnTTSStarted);
+    }
 }
 
 void UAvatarGameInstance::Shutdown()
 {
-	Super::Shutdown();
+    Super::Shutdown();
 }
 
 void UAvatarGameInstance::SendUserMessage(const FString& Message)
 {
-	UE_LOG(LogTemp, Warning, TEXT("=== SendUserMessage: %s ==="), *Message); // ДОБАВИТЬ
+    if (Message.IsEmpty()) return;
     
-	if (Message.IsEmpty())
-	{
-		UE_LOG(LogTemp, Error, TEXT("Message is empty!")); // ДОБАВИТЬ
-		return;
-	}
+    ChatHistory.Add(FString::Printf(TEXT("Пользователь: %s"), *Message));
+    OnChatMessageReceived.Broadcast(Message);
     
-	// Добавляем в историю
-	ChatHistory.Add(FString::Printf(TEXT("Пользователь: %s"), *Message));
-	OnChatMessageReceived.Broadcast(Message);
+    FString Context = TEXT("Ты виртуальный ассистент по имени ") + AvatarName + 
+                      TEXT(". Отвечай дружелюбно и по делу на русском языке. Отвечай кратко.\n\n");
     
-	// Формируем контекст для LLM
-	FString Context = TEXT("Ты виртуальный ассистент по имени ") + AvatarName + 
-					 TEXT(". Отвечай дружелюбно и по делу.\n\n");
+    for (const auto& Entry : ChatHistory)
+    {
+        Context += Entry + TEXT("\n");
+    }
     
-	for (const auto& Entry : ChatHistory)
-	{
-		Context += Entry + TEXT("\n");
-	}
-    
-	UE_LOG(LogTemp, Warning, TEXT("Context prepared, length: %d"), Context.Len()); // ДОБАВИТЬ
-    
-	// Отправляем запрос к LLM
-	if (LLMClient)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Calling LLMClient->SendPrompt...")); // ДОБАВИТЬ
-		LLMClient->SendPrompt(Context, FLLMResponseDelegate::CreateLambda([this](const FString& Response)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("=== LLM RESPONSE RECEIVED: %s ==="), *Response); // ДОБАВИТЬ
+    if (LLMClient)
+    {
+        LLMClient->SendPrompt(Context, FLLMResponseDelegate::CreateLambda([this](const FString& Response)
+        {
+            CurrentResponse = Response;
             
-			// Добавляем ответ в историю
-			FString FullResponse = AvatarName + TEXT(": ") + Response;
-			ChatHistory.Add(FullResponse);
+            FString FullResponse = AvatarName + TEXT(": ") + Response;
+            ChatHistory.Add(FullResponse);
             
-			// Отправляем на озвучку
-			if (TTSClient)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Calling TTSClient->SynthesizeAndPlay...")); // ДОБАВИТЬ
-				TTSClient->SynthesizeAndPlay(Response);
-			}
+            OnAvatarResponse.Broadcast(Response);
             
-			// Уведомляем UI
-			UE_LOG(LogTemp, Warning, TEXT("Broadcasting OnAvatarResponse...")); // ДОБАВИТЬ
-			OnAvatarResponse.Broadcast(Response);
-		}));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("LLMClient is NULL!")); // ДОБАВИТЬ
-	}
+            // Ищем персонажа если еще не нашли
+            if (!AvatarCharacter)
+            {
+                UWorld* World = GetWorld();
+                if (World)
+                {
+                    TArray<AActor*> FoundActors;
+                    UGameplayStatics::GetAllActorsOfClass(World, AAvatarCharacter::StaticClass(), FoundActors);
+                    if (FoundActors.Num() > 0)
+                    {
+                        AvatarCharacter = Cast<AAvatarCharacter>(FoundActors[0]);
+                    }
+                }
+            }
+            
+            if (TTSClient)
+            {
+                TTSClient->SynthesizeAndPlay(Response);
+            }
+        }));
+    }
+}
+
+void UAvatarGameInstance::OnTTSStarted(float Duration)
+{
+    if (AvatarCharacter && !CurrentResponse.IsEmpty())
+    {
+        AvatarCharacter->Speak(CurrentResponse, Duration);
+    }
 }
