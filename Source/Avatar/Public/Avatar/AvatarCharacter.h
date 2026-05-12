@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿// Avatar/AvatarCharacter.h
+#pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
@@ -17,6 +18,7 @@ public:
 	AAvatarCharacter();
     
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;  // Эта строка должна быть!
     
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UFacialAnimationComponent* FacialAnimation;

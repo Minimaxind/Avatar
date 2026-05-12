@@ -1,5 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
-
+// Avatar.Build.cs
 using UnrealBuildTool;
 
 public class Avatar : ModuleRules
@@ -7,7 +6,7 @@ public class Avatar : ModuleRules
 	public Avatar(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-	
+    
 		PublicDependencyModuleNames.AddRange(new string[] { 
 			"Core", 
 			"CoreUObject", 
@@ -15,13 +14,17 @@ public class Avatar : ModuleRules
 			"InputCore",
 			"UMG",
 			"Slate",
-			"SlateCore"
+			"SlateCore",
+			"HTTP",
+			"Json",
+			"JsonUtilities"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {
 			"HTTP",
 			"Json",
-			"JsonUtilities"
+			"JsonUtilities",
+			"LiveLink"
 		});
 	}
 }

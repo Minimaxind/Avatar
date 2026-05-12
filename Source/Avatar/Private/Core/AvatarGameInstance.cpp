@@ -1,12 +1,16 @@
-﻿#include "Core/AvatarGameInstance.h"
+﻿// Core/AvatarGameInstance.cpp
+#include "Core/AvatarGameInstance.h"  // ДОЛЖНО БЫТЬ ПЕРВОЙ СТРОКОЙ!
+
 #include "AI/LLMClient.h"
 #include "AI/TTSClient.h"
 #include "Avatar/AvatarCharacter.h"
 #include "Kismet/GameplayStatics.h"
-#include "Engine/World.h"
 
 UAvatarGameInstance::UAvatarGameInstance()
 {
+    AvatarCharacter = nullptr;
+    LLMClient = nullptr;
+    TTSClient = nullptr;
 }
 
 void UAvatarGameInstance::Init()
@@ -35,12 +39,14 @@ void UAvatarGameInstance::SendUserMessage(const FString& Message)
     OnChatMessageReceived.Broadcast(Message);
     
     FString Context = TEXT("Ты виртуальный ассистент по имени ") + AvatarName + 
-                      TEXT(". Отвечай дружелюбно и по делу на русском языке. Отвечай кратко.\n\n");
+                      TEXT(". Отвечай дружелюбно и по делу на русском языке. Отвечай кратко, не более 2-3 предложений.\n\n");
     
-    for (const auto& Entry : ChatHistory)
+    int32 StartIndex = FMath::Max(0, ChatHistory.Num() - 10);
+    for (int32 i = StartIndex; i < ChatHistory.Num(); i++)
     {
-        Context += Entry + TEXT("\n");
+        Context += ChatHistory[i] + TEXT("\n");
     }
+    Context += TEXT("\nАссистент: ");
     
     if (LLMClient)
     {
@@ -53,7 +59,6 @@ void UAvatarGameInstance::SendUserMessage(const FString& Message)
             
             OnAvatarResponse.Broadcast(Response);
             
-            // Ищем персонажа если еще не нашли
             if (!AvatarCharacter)
             {
                 UWorld* World = GetWorld();

@@ -1,4 +1,8 @@
-﻿#include "AI/LLMClient.h"
+﻿// AI/LLMClient.cpp
+#include "AI/LLMClient.h"
+#include "HttpModule.h"
+#include "Interfaces/IHttpRequest.h"
+#include "Interfaces/IHttpResponse.h"
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
 #include "Dom/JsonObject.h"
@@ -13,8 +17,6 @@ void ULLMClient::SendPrompt(const FString& Prompt, FLLMResponseDelegate Response
     TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = HttpModule->CreateRequest();
     
     Request->SetTimeout(30.0f);
-    
-    // ОТКЛЮЧАЕМ ИСПОЛЬЗОВАНИЕ ПРОКСИ ДЛЯ ЭТОГО ЗАПРОСА
     Request->SetHeader(TEXT("Connection"), TEXT("close"));
     
     TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject);
@@ -31,13 +33,16 @@ void ULLMClient::SendPrompt(const FString& Prompt, FLLMResponseDelegate Response
     TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&JsonString);
     FJsonSerializer::Serialize(JsonObject.ToSharedRef(), Writer);
     
-    // Используем localhost вместо 127.0.0.1
     Request->SetURL(TEXT("http://localhost:11434/api/generate"));
     Request->SetVerb(TEXT("POST"));
     Request->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
     Request->SetContentAsString(JsonString);
     
-    Request->OnProcessRequestComplete().BindUObject(this, &ULLMClient::OnResponseReceived, ResponseCallback);
+    // Используем лямбду вместо BindUObject для совместимости
+    Request->OnProcessRequestComplete().BindLambda([this, ResponseCallback](FHttpRequestPtr Req, FHttpResponsePtr Res, bool bSuccess)
+    {
+        OnResponseReceived(Req, Res, bSuccess, ResponseCallback);
+    });
     
     if (!Request->ProcessRequest())
     {
@@ -64,6 +69,10 @@ void ULLMClient::OnResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Re
             {
                 JsonObject->TryGetStringField(TEXT("response"), ResponseString);
             }
+        }
+        else
+        {
+            UE_LOG(LogTemp, Error, TEXT("LLM API Error: %d"), ResponseCode);
         }
     }
     

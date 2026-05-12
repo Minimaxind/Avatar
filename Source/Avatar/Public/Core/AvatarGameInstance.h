@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿// Core/AvatarGameInstance.h
+#pragma once
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
@@ -17,7 +18,7 @@ class AVATAR_API UAvatarGameInstance : public UGameInstance
 	GENERATED_BODY()
     
 public:
-	UAvatarGameInstance();
+	UAvatarGameInstance();  // Конструктор должен быть реализован
     
 	virtual void Init() override;
 	virtual void Shutdown() override;
@@ -31,7 +32,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Chat")
 	void SendUserMessage(const FString& Message);
     
-	UFUNCTION()
+	UFUNCTION()  // Уберите BlueprintCallable если не используется в BP
 	void OnTTSStarted(float Duration);
     
 	UPROPERTY(BlueprintReadOnly, Category = "Chat")

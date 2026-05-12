@@ -1,10 +1,7 @@
-﻿#include "Avatar/FacialAnimationComponent.h"
+﻿// Avatar/FacialAnimationComponent.cpp
+#include "Avatar/FacialAnimationComponent.h"
 #include "Components/SkeletalMeshComponent.h"
-#include "Avatar/AvatarAnimInstance.h"
-#include "Animation/AnimSequence.h"
-#include "Engine/World.h"
 #include "TimerManager.h"
-#include "Animation/AnimInstance.h"
 
 UFacialAnimationComponent::UFacialAnimationComponent()
 {
@@ -15,263 +12,248 @@ void UFacialAnimationComponent::BeginPlay()
 {
     Super::BeginPlay();
     
-    UE_LOG(LogTemp, Warning, TEXT("=== FacialAnimation::BeginPlay START ==="));
-    
     AActor* Owner = GetOwner();
     if (Owner)
     {
         SkeletalMesh = Owner->FindComponentByClass<USkeletalMeshComponent>();
         if (SkeletalMesh)
         {
-            AnimInstance = Cast<UAvatarAnimInstance>(SkeletalMesh->GetAnimInstance());
-            UE_LOG(LogTemp, Warning, TEXT("FacialAnimation: SkeletalMesh found - %s"), *SkeletalMesh->GetName());
-            
-            // Проверяем скелет
-            if (SkeletalMesh->GetSkeletalMeshAsset())
-            {
-                USkeleton* Skeleton = SkeletalMesh->GetSkeletalMeshAsset()->GetSkeleton();
-                UE_LOG(LogTemp, Warning, TEXT("FacialAnimation: Skeleton - %s"), *Skeleton->GetName());
-            }
-        }
-        else
-        {
-            UE_LOG(LogTemp, Error, TEXT("FacialAnimation: SkeletalMesh NOT found!"));
-            return;
+            UE_LOG(LogTemp, Warning, TEXT("FacialAnimationComponent initialized"));
         }
     }
-    
-    // Заполняем карту буква -> анимация
-    CharToAnimMap.Add(TEXT('а'), AS_A1);
-    CharToAnimMap.Add(TEXT('я'), AS_A1);
-    CharToAnimMap.Add(TEXT('о'), AS_O1);
-    CharToAnimMap.Add(TEXT('ё'), AS_Yo1);
-    CharToAnimMap.Add(TEXT('у'), AS_U1);
-    CharToAnimMap.Add(TEXT('ю'), AS_U1);
-    CharToAnimMap.Add(TEXT('э'), AS_E1);
-    CharToAnimMap.Add(TEXT('е'), AS_E1);
-    CharToAnimMap.Add(TEXT('и'), AS_I1);
-    CharToAnimMap.Add(TEXT('ы'), AS_I1);
-    CharToAnimMap.Add(TEXT('б'), AS_B1);
-    CharToAnimMap.Add(TEXT('п'), AS_B1);
-    CharToAnimMap.Add(TEXT('в'), AS_V1);
-    CharToAnimMap.Add(TEXT('ф'), AS_V1);
-    CharToAnimMap.Add(TEXT('м'), AS_M1);
-    CharToAnimMap.Add(TEXT('т'), AS_T1);
-    CharToAnimMap.Add(TEXT('д'), AS_T1);
-    CharToAnimMap.Add(TEXT('н'), AS_T1);
-    CharToAnimMap.Add(TEXT('с'), AS_S1);
-    CharToAnimMap.Add(TEXT('з'), AS_S1);
-    CharToAnimMap.Add(TEXT('ш'), AS_Sh1);
-    CharToAnimMap.Add(TEXT('ж'), AS_Sh1);
-    CharToAnimMap.Add(TEXT('щ'), AS_Sh1);
-    CharToAnimMap.Add(TEXT('ч'), AS_Ch1);
-    CharToAnimMap.Add(TEXT('к'), AS_K1);
-    CharToAnimMap.Add(TEXT('г'), AS_K1);
-    CharToAnimMap.Add(TEXT('х'), AS_K1);
-    CharToAnimMap.Add(TEXT('л'), AS_L1);
-    CharToAnimMap.Add(TEXT('р'), AS_R1);
-    
-    UE_LOG(LogTemp, Warning, TEXT("FacialAnimation: CharMap size = %d"), CharToAnimMap.Num());
-    
-    // Проверяем назначенные анимации
-    UE_LOG(LogTemp, Warning, TEXT("FacialAnimation: Checking assigned animations:"));
-    UE_LOG(LogTemp, Warning, TEXT("  AS_Idle = %s"), AS_Idle ? *AS_Idle->GetName() : TEXT("NULL"));
-    UE_LOG(LogTemp, Warning, TEXT("  AS_A1 = %s"), AS_A1 ? *AS_A1->GetName() : TEXT("NULL"));
-    UE_LOG(LogTemp, Warning, TEXT("  AS_O1 = %s"), AS_O1 ? *AS_O1->GetName() : TEXT("NULL"));
-    
-    // ТЕСТ: Пробуем проиграть анимацию через 2 секунды
-    FTimerHandle TestTimer;
-    GetWorld()->GetTimerManager().SetTimer(TestTimer, this, &UFacialAnimationComponent::TestAnimation, 2.0f, false);
-    
-    UE_LOG(LogTemp, Warning, TEXT("=== FacialAnimation::BeginPlay END ==="));
-}
-
-void UFacialAnimationComponent::TestAnimation()
-{
-    UE_LOG(LogTemp, Warning, TEXT("=== TEST ANIMATION START ==="));
-    
-    if (!SkeletalMesh)
-    {
-        UE_LOG(LogTemp, Error, TEXT("TEST: SkeletalMesh is NULL!"));
-        return;
-    }
-    
-    if (!AS_Idle)
-    {
-        UE_LOG(LogTemp, Error, TEXT("TEST: AS_Idle is NULL! Cannot test!"));
-        return;
-    }
-    
-    UE_LOG(LogTemp, Warning, TEXT("TEST: Playing %s on %s"), *AS_Idle->GetName(), *SkeletalMesh->GetName());
-    
-    // Способ 1: SetAnimationMode + Play
-    SkeletalMesh->SetAnimationMode(EAnimationMode::AnimationSingleNode);
-    SkeletalMesh->SetAnimation(AS_Idle);
-    SkeletalMesh->Play(true);
-    UE_LOG(LogTemp, Warning, TEXT("TEST: AnimationSingleNode mode - SetAnimation + Play"));
-    
-    UE_LOG(LogTemp, Warning, TEXT("=== TEST ANIMATION END ==="));
-}
-
-bool UFacialAnimationComponent::IsAnimationCompatible(UAnimSequence* Animation)
-{
-    if (!SkeletalMesh || !Animation) return false;
-    
-    USkeletalMesh* SkMesh = SkeletalMesh->GetSkeletalMeshAsset();
-    if (!SkMesh) return false;
-    
-    USkeleton* MeshSkeleton = SkMesh->GetSkeleton();
-    USkeleton* AnimSkeleton = Animation->GetSkeleton();
-    
-    if (!MeshSkeleton || !AnimSkeleton) return false;
-    
-    bool bCompatible = (MeshSkeleton == AnimSkeleton);
-    
-    UE_LOG(LogTemp, Warning, TEXT("Compatibility: MeshSkeleton=%s, AnimSkeleton=%s, Same=%d"),
-        *MeshSkeleton->GetName(), *AnimSkeleton->GetName(), bCompatible);
-    
-    return bCompatible;
 }
 
 void UFacialAnimationComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
     
-    if (!bIsTalking) return;
-    
-    CurrentSpeechTime += DeltaTime;
-    
-    if (CurrentSpeechTime >= SpeechDuration)
+    if (bIsSpeaking)
     {
-        StopTalking();
-        return;
-    }
-    
-    TimeInCurrentViseme += DeltaTime;
-    
-    if (TimeInCurrentViseme >= CurrentVisemeDuration)
-    {
-        CurrentVisemeIndex++;
-        
-        if (CurrentVisemeIndex >= VisemeSequence.Num())
+        CurrentSpeechTime += DeltaTime;
+        if (CurrentSpeechTime >= TotalSpeechDuration)
         {
-            CurrentVisemeIndex = 0;
+            StopSpeaking();
         }
-        
-        PlayCurrentViseme();
-        TimeInCurrentViseme = 0.0f;
+        else
+        {
+            UpdateCurrentViseme(DeltaTime);
+        }
     }
 }
 
-void UFacialAnimationComponent::StartTalking(const FString& Text, float Duration)
+FString UFacialAnimationComponent::CharToViseme(TCHAR Char)
 {
-    UE_LOG(LogTemp, Warning, TEXT("=== FacialAnimation::StartTalking: '%s' ==="), *Text);
-    
-    if (Text.IsEmpty()) return;
-    if (!SkeletalMesh)
+    switch (Char)
     {
-        UE_LOG(LogTemp, Error, TEXT("FacialAnimation: SkeletalMesh is NULL!"));
-        return;
+        case 'а': case 'я': case 'э': case 'е': return TEXT("A");
+        case 'о': case 'ё': return TEXT("O");
+        case 'у': case 'ю': return TEXT("U");
+        case 'и': case 'ы': return TEXT("I");
+        case 'б': case 'п': return TEXT("B");
+        case 'м': return TEXT("M");
+        case 'в': case 'ф': return TEXT("F");
+        case 'т': case 'д': return TEXT("T");
+        case 'с': case 'з': return TEXT("S");
+        case 'ш': case 'щ': case 'ж': return TEXT("SH");
+        case 'ч': return TEXT("CH");
+        case 'к': case 'г': case 'х': return TEXT("K");
+        case 'л': return TEXT("L");
+        case 'р': return TEXT("R");
+        default: return TEXT("IDLE");
     }
-    
-    bIsTalking = true;
-    SpeechDuration = (Duration > 0.0f) ? Duration : Text.Len() * 0.15f;
-    CurrentSpeechTime = 0.0f;
-    
-    // Создаем последовательность анимаций
-    VisemeSequence.Empty();
-    FString LowerText = Text.ToLower();
-    
-    for (int32 i = 0; i < LowerText.Len(); i++)
-    {
-        TCHAR Char = LowerText[i];
-        
-        if (Char == ' ') continue;
-        
-        UAnimSequence** FoundAnim = CharToAnimMap.Find(Char);
-        if (FoundAnim && *FoundAnim)
-        {
-            VisemeSequence.Add(*FoundAnim);
-        }
-        else if (AS_Idle)
-        {
-            VisemeSequence.Add(AS_Idle);
-        }
-    }
-    
-    UE_LOG(LogTemp, Warning, TEXT("FacialAnimation: Created %d visemes"), VisemeSequence.Num());
-    
-    if (VisemeSequence.Num() > 0)
-    {
-        CurrentVisemeIndex = 0;
-        CurrentVisemeDuration = SpeechDuration / VisemeSequence.Num();
-        PlayCurrentViseme();
-        TimeInCurrentViseme = 0.0f;
-    }
-    
-    if (AnimInstance)
-    {
-        AnimInstance->SetTalking(true);
-    }
-    
-    SetComponentTickEnabled(true);
-}
-
-void UFacialAnimationComponent::StopTalking()
-{
-    UE_LOG(LogTemp, Warning, TEXT("FacialAnimation::StopTalking"));
-    
-    bIsTalking = false;
-    
-    if (SkeletalMesh && AS_Idle)
-    {
-        SkeletalMesh->SetAnimationMode(EAnimationMode::AnimationSingleNode);
-        SkeletalMesh->SetAnimation(AS_Idle);
-        SkeletalMesh->Play(true);
-    }
-    
-    if (AnimInstance)
-    {
-        AnimInstance->SetTalking(false);
-    }
-    
-    SetComponentTickEnabled(false);
 }
 
 void UFacialAnimationComponent::SetEmotion(const FString& Emotion, float Intensity)
 {
-    if (AnimInstance)
+    UE_LOG(LogTemp, Verbose, TEXT("SetEmotion: %s, Intensity: %.2f"), *Emotion, Intensity);
+}
+
+void UFacialAnimationComponent::StartSpeaking(const FString& Text, float Duration)
+{
+    if (Text.IsEmpty()) return;
+    
+    StopSpeaking();
+    
+    bIsSpeaking = true;
+    CurrentSpeechTime = 0.0f;
+    TotalSpeechDuration = Duration > 0.0f ? Duration : FMath::Clamp(Text.Len() * 0.12f, 1.0f, 15.0f);
+    CurrentVisemeIndex = 0;
+    VisemeTimer = 0.0f;
+    
+    GenerateVisemeTimings(Text, TotalSpeechDuration);
+    
+    if (VisemeTimings.Num() > 0)
     {
-        AnimInstance->SetEmotion(Emotion, Intensity);
+        // Показываем первую визему с плавным появлением
+        PlayVisemeWithBlend(VisemeTimings[0].VisemeName, 0.1f);
+    }
+    
+    UE_LOG(LogTemp, Log, TEXT("StartSpeaking: %d visemes over %.2f seconds"), VisemeTimings.Num(), TotalSpeechDuration);
+}
+
+void UFacialAnimationComponent::StopSpeaking()
+{
+    if (!bIsSpeaking) return;
+    
+    bIsSpeaking = false;
+    VisemeTimings.Empty();
+    CurrentVisemeIndex = 0;
+    
+    // Возвращаемся в нейтральное положение
+    UAnimSequence* IdleAnim = VisemeAnimations.FindRef(TEXT("IDLE"));
+    if (IdleAnim && SkeletalMesh)
+    {
+        SkeletalMesh->SetAnimationMode(EAnimationMode::AnimationSingleNode);
+        SkeletalMesh->SetAnimation(IdleAnim);
+        SkeletalMesh->Play(true);
+    }
+    
+    UE_LOG(LogTemp, Log, TEXT("StopSpeaking"));
+}
+
+void UFacialAnimationComponent::GenerateVisemeTimings(const FString& Text, float Duration)
+{
+    VisemeTimings.Empty();
+    
+    FString LowerText = Text.ToLower();
+    
+    // Сначала разбиваем текст на фонемы (группируем похожие звуки)
+    TArray<FString> Phonemes;
+    FString CurrentPhoneme;
+    FString LastViseme = TEXT("");
+    
+    for (TCHAR Char : LowerText)
+    {
+        if (Char == ' ') continue;
+        
+        FString Viseme = CharToViseme(Char);
+        
+        // Группируем одинаковые виземы подряд
+        if (Viseme != LastViseme && !LastViseme.IsEmpty())
+        {
+            Phonemes.Add(LastViseme);
+        }
+        LastViseme = Viseme;
+    }
+    if (!LastViseme.IsEmpty())
+    {
+        Phonemes.Add(LastViseme);
+    }
+    
+    if (Phonemes.Num() == 0) return;
+    
+    // Минимальное время показа одной виземы (чтобы рот успел открыться)
+    const float MinVisemeDuration = 0.12f;  // 120 мс минимум
+    const float MaxVisemeDuration = 0.35f;  // 350 мс максимум
+    
+    // Распределяем время между виземами
+    float TimePerViseme = FMath::Clamp(Duration / Phonemes.Num(), MinVisemeDuration, MaxVisemeDuration);
+    float CurrentTime = 0.0f;
+    
+    for (const FString& VisemeName : Phonemes)
+    {
+        FVisemeTiming Timing;
+        Timing.VisemeName = VisemeName;
+        Timing.StartTime = CurrentTime;
+        Timing.EndTime = CurrentTime + TimePerViseme;
+        Timing.Intensity = 0.9f;
+        
+        VisemeTimings.Add(Timing);
+        CurrentTime += TimePerViseme;
+    }
+    
+    // Корректируем последнюю визему, чтобы она не обрывалась резко
+    if (VisemeTimings.Num() > 0)
+    {
+        FVisemeTiming& LastTiming = VisemeTimings.Last();
+        LastTiming.EndTime = Duration;
+        LastTiming.Intensity = 0.7f;  // Затухание в конце
+    }
+    
+    UE_LOG(LogTemp, Log, TEXT("Generated %d viseme groups (was %d chars)"), Phonemes.Num(), LowerText.Len());
+}
+
+void UFacialAnimationComponent::UpdateCurrentViseme(float DeltaTime)
+{
+    if (VisemeTimings.Num() == 0) return;
+    
+    VisemeTimer += DeltaTime;
+    
+    // Находим текущую визему по времени
+    int32 NewVisemeIndex = CurrentVisemeIndex;
+    for (int32 i = 0; i < VisemeTimings.Num(); i++)
+    {
+        if (VisemeTimer >= VisemeTimings[i].StartTime && VisemeTimer <= VisemeTimings[i].EndTime)
+        {
+            NewVisemeIndex = i;
+            break;
+        }
+    }
+    
+    // Если визема изменилась
+    if (NewVisemeIndex != CurrentVisemeIndex)
+    {
+        CurrentVisemeIndex = NewVisemeIndex;
+        
+        if (CurrentVisemeIndex < VisemeTimings.Num())
+        {
+            const FVisemeTiming& Viseme = VisemeTimings[CurrentVisemeIndex];
+            
+            // Рассчитываем интенсивность на основе прогресса внутри виземы
+            float ProgressInViseme = (VisemeTimer - Viseme.StartTime) / (Viseme.EndTime - Viseme.StartTime);
+            float IntensityMultiplier = 1.0f;
+            
+            // Плавное нарастание в начале и затухание в конце
+            if (ProgressInViseme < 0.2f)
+            {
+                // Нарастание (первые 20% времени)
+                IntensityMultiplier = ProgressInViseme / 0.2f;
+            }
+            else if (ProgressInViseme > 0.8f)
+            {
+                // Затухание (последние 20% времени)
+                IntensityMultiplier = 1.0f - ((ProgressInViseme - 0.8f) / 0.2f);
+            }
+            else
+            {
+                // Полная интенсивность (середина)
+                IntensityMultiplier = 1.0f;
+            }
+            
+            float FinalIntensity = Viseme.Intensity * IntensityMultiplier;
+            
+            // Показываем визему с нужной интенсивностью
+            PlayVisemeWithIntensity(Viseme.VisemeName, FinalIntensity);
+            
+            UE_LOG(LogTemp, Verbose, TEXT("Viseme %d: %s at %.2f intensity (progress %.2f)"), 
+                CurrentVisemeIndex, *Viseme.VisemeName, FinalIntensity, ProgressInViseme);
+        }
     }
 }
 
-void UFacialAnimationComponent::PlayCurrentViseme()
+void UFacialAnimationComponent::PlayVisemeWithBlend(const FString& VisemeName, float BlendTime)
 {
-    if (!SkeletalMesh) return;
-    if (VisemeSequence.Num() == 0) return;
-    if (CurrentVisemeIndex >= VisemeSequence.Num()) return;
+    UAnimSequence* Anim = VisemeAnimations.FindRef(VisemeName);
+    if (!Anim || !SkeletalMesh) return;
     
-    UAnimSequence* AnimToPlay = VisemeSequence[CurrentVisemeIndex];
-    if (!AnimToPlay) return;
-    
-    UE_LOG(LogTemp, Warning, TEXT("FacialAnimation: Playing %s"), *AnimToPlay->GetName());
-    
-    // Используем AnimationSingleNode - самый надёжный способ
+    // Используем AnimationSingleNode - он автоматически делает плавный переход
     SkeletalMesh->SetAnimationMode(EAnimationMode::AnimationSingleNode);
-    SkeletalMesh->SetAnimation(AnimToPlay);
+    SkeletalMesh->SetAnimation(Anim);
     SkeletalMesh->Play(true);
 }
 
-UAnimSequence* UFacialAnimationComponent::GetAnimationForChar(TCHAR Char)
+void UFacialAnimationComponent::PlayVisemeWithIntensity(const FString& VisemeName, float Intensity)
 {
-    UAnimSequence** Found = CharToAnimMap.Find(Char);
-    return Found ? *Found : AS_Idle;
-}
-
-bool UFacialAnimationComponent::IsVowel(TCHAR Char)
-{
-    return Char == 'а' || Char == 'я' || Char == 'о' || Char == 'ё' || 
-           Char == 'у' || Char == 'ю' || Char == 'э' || Char == 'е' || 
-           Char == 'и' || Char == 'ы';
+    UAnimSequence* Anim = VisemeAnimations.FindRef(VisemeName);
+    if (!Anim || !SkeletalMesh) return;
+    
+    // Для интенсивности можно масштабировать время или вес
+    // Просто проигрываем анимацию, UE5 автоматически сделает переход
+    
+    SkeletalMesh->SetAnimationMode(EAnimationMode::AnimationSingleNode);
+    SkeletalMesh->SetAnimation(Anim);
+    SkeletalMesh->Play(true);
+    
+    // Опционально: можно настроить скорость воспроизведения для имитации интенсивности
+    // SkeletalMesh->SetPlayRate(0.8f + Intensity * 0.4f);
 }

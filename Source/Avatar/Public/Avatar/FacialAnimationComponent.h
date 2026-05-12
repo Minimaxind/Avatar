@@ -1,11 +1,27 @@
-﻿#pragma once
+﻿// Avatar/FacialAnimationComponent.h
+#pragma once
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "FacialAnimationComponent.generated.h"
 
-class UAvatarAnimInstance;
-class UAnimSequence;
+USTRUCT(BlueprintType)
+struct FVisemeTiming
+{
+    GENERATED_BODY()
+    
+    UPROPERTY()
+    FString VisemeName;
+    
+    UPROPERTY()
+    float StartTime;
+    
+    UPROPERTY()
+    float EndTime;
+    
+    UPROPERTY()
+    float Intensity;
+};
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class AVATAR_API UFacialAnimationComponent : public UActorComponent
@@ -19,70 +35,40 @@ public:
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
     
     UFUNCTION(BlueprintCallable, Category = "Facial Animation")
-    void StartTalking(const FString& Text, float Duration = 0.0f);
+    void StartSpeaking(const FString& Text, float Duration);
     
     UFUNCTION(BlueprintCallable, Category = "Facial Animation")
-    void StopTalking();
+    void StopSpeaking();
+    
+    UFUNCTION(BlueprintCallable, Category = "Facial Animation")
+    bool IsSpeaking() const { return bIsSpeaking; }
     
     UFUNCTION(BlueprintCallable, Category = "Facial Animation")
     void SetEmotion(const FString& Emotion, float Intensity = 1.0f);
     
-    // Viseme Animations
+    // Видимые для назначения в Blueprint
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Viseme Animations")
-    UAnimSequence* AS_A1;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Viseme Animations")
-    UAnimSequence* AS_O1;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Viseme Animations")
-    UAnimSequence* AS_Yo1;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Viseme Animations")
-    UAnimSequence* AS_U1;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Viseme Animations")
-    UAnimSequence* AS_E1;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Viseme Animations")
-    UAnimSequence* AS_I1;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Viseme Animations")
-    UAnimSequence* AS_B1;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Viseme Animations")
-    UAnimSequence* AS_V1;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Viseme Animations")
-    UAnimSequence* AS_M1;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Viseme Animations")
-    UAnimSequence* AS_T1;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Viseme Animations")
-    UAnimSequence* AS_S1;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Viseme Animations")
-    UAnimSequence* AS_Sh1;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Viseme Animations")
-    UAnimSequence* AS_Ch1;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Viseme Animations")
-    UAnimSequence* AS_K1;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Viseme Animations")
-    UAnimSequence* AS_L1;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Viseme Animations")
-    UAnimSequence* AS_R1;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Viseme Animations")
-    UAnimSequence* AS_Idle;
+    TMap<FString, UAnimSequence*> VisemeAnimations;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
+    float BlendSpeed = 15.0f;
+    
+private:
+    void GenerateVisemeTimings(const FString& Text, float Duration);
+    void UpdateCurrentViseme(float DeltaTime);
+    void PlayVisemeWithBlend(const FString& VisemeName, float BlendTime);
+    void PlayVisemeWithIntensity(const FString& VisemeName, float Intensity);
+    FString CharToViseme(TCHAR Char);
     
     UPROPERTY()
     class USkeletalMeshComponent* SkeletalMesh;
     
-    UPROPERTY()
-    UAvatarAnimInstance* AnimInstance;
-    
-private:
-    void PlayCurrentViseme();
-    UAnimSequence* GetAnimationForChar(TCHAR Char);
-    bool IsVowel(TCHAR Char);
-    void TestAnimation();
-    bool IsAnimationCompatible(UAnimSequence* Animation);
-    
-    TMap<TCHAR, UAnimSequence*> CharToAnimMap;
-    TArray<UAnimSequence*> VisemeSequence;
-    
+    TArray<FVisemeTiming> VisemeTimings;
     int32 CurrentVisemeIndex = 0;
-    float CurrentVisemeDuration = 0.1f;
-    float TimeInCurrentViseme = 0.0f;
+    bool bIsSpeaking = false;
     float CurrentSpeechTime = 0.0f;
-    float SpeechDuration = 0.0f;
-    bool bIsTalking = false;
+    float TotalSpeechDuration = 0.0f;
+    
+    // Для плавного блендинга
+    float VisemeTimer = 0.0f;
 };

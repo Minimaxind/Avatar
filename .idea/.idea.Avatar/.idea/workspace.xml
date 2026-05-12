@@ -14,32 +14,18 @@
     <list default="true" id="aa28594b-f1f5-47b1-8ac5-36dd4b14e907" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Avatar/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Avatar/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Avatar.uproject" beforeDir="false" afterPath="$PROJECT_DIR$/Avatar.uproject" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/AvatarProject/Animations/ABP_Avatar.uasset" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Content/AvatarProject/Blueprints/BP_AvatarCharacter.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/AvatarProject/Blueprints/BP_AvatarCharacter.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/AvatarProject/MainLevel.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/AvatarProject/MainLevel.umap" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/LevelPrototyping/Interactable/JumpPad/Assets/Materials/M_SimpleGlow.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/LevelPrototyping/Interactable/JumpPad/Assets/Materials/M_SimpleGlow.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/LevelPrototyping/Materials/MI_PrototypeGrid_Gray.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/LevelPrototyping/Materials/MI_PrototypeGrid_Gray.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/LevelPrototyping/Materials/M_PrototypeGrid.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/LevelPrototyping/Materials/M_PrototypeGrid.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/Variant_Horror/Blueprints/Light/Assets/Materials/M_DustMote.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Variant_Horror/Blueprints/Light/Assets/Materials/M_DustMote.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Avatar/Avatar.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Avatar/Avatar.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Avatar/Avatar.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Avatar/Avatar.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Avatar/Avatar.Build.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Avatar/Avatar.Build.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/Avatar/Private/AI/LLMClient.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Avatar/Private/AI/LLMClient.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/Avatar/Private/AI/TTSClient.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Avatar/Private/AI/TTSClient.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Avatar/Private/Avatar/AvatarAnimInstance.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Avatar/Private/Avatar/AvatarAnimInstance.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/Avatar/Private/Avatar/AvatarCharacter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Avatar/Private/Avatar/AvatarCharacter.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/Avatar/Private/Avatar/FacialAnimationComponent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Avatar/Private/Avatar/FacialAnimationComponent.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/Avatar/Private/Core/AvatarGameInstance.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Avatar/Private/Core/AvatarGameInstance.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Avatar/Private/Core/AvatarGameMode.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Avatar/Private/Core/AvatarGameMode.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Avatar/Private/UI/ChatWidget.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Avatar/Private/UI/ChatWidget.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Avatar/Private/UI/MainMenuWidget.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Avatar/Private/UI/MainMenuWidget.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/Avatar/Public/AI/LLMClient.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Avatar/Public/AI/LLMClient.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/Avatar/Public/AI/TTSClient.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Avatar/Public/AI/TTSClient.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Avatar/Public/Avatar/AvatarAnimInstance.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Avatar/Public/Avatar/AvatarAnimInstance.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/Avatar/Public/Avatar/AvatarCharacter.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Avatar/Public/Avatar/AvatarCharacter.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/Avatar/Public/Avatar/FacialAnimationComponent.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Avatar/Public/Avatar/FacialAnimationComponent.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/Avatar/Public/Core/AvatarGameInstance.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Avatar/Public/Core/AvatarGameInstance.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Avatar/Public/UI/ChatWidget.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Avatar/Public/UI/ChatWidget.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Avatar/Public/UI/MainMenuWidget.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Avatar/Public/UI/MainMenuWidget.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -57,20 +43,21 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "C/C++ Project.Avatar.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "master",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;C/C++ Project.Avatar.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected="C/C++ Project.Avatar">
     <configuration name="Avatar" type="CppProject" factoryName="C++ Project">
       <configuration_1 setup="1">
@@ -176,6 +163,8 @@
       <workItem from="1773440742311" duration="2652000" />
       <workItem from="1773443525346" duration="365000" />
       <workItem from="1775592655350" duration="14768000" />
+      <workItem from="1778475019397" duration="4841000" />
+      <workItem from="1778488280358" duration="7916000" />
     </task>
     <servers />
   </component>
