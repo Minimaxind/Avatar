@@ -1,6 +1,7 @@
 ﻿// Avatar/FacialAnimationComponent.cpp
 #include "Avatar/FacialAnimationComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Animation/AnimInstance.h"
 
 UFacialAnimationComponent::UFacialAnimationComponent()
 {
@@ -10,22 +11,80 @@ UFacialAnimationComponent::UFacialAnimationComponent()
 void UFacialAnimationComponent::BeginPlay()
 {
     Super::BeginPlay();
-    
+
     AActor* Owner = GetOwner();
-    if (Owner)
+    if (!Owner)
     {
-        SkeletalMeshComponent = Owner->FindComponentByClass<USkeletalMeshComponent>();
-        if (SkeletalMeshComponent)
+        UE_LOG(LogTemp, Error, TEXT("[FAC] No owner actor!"));
+        return;
+    }
+
+    TArray<USkeletalMeshComponent*> SkelMeshes;
+    Owner->GetComponents<USkeletalMeshComponent>(SkelMeshes);
+
+    UE_LOG(LogTemp, Warning, TEXT("[FAC] SkeletalMesh components on owner (%d):"), SkelMeshes.Num());
+    for (USkeletalMeshComponent* Mesh : SkelMeshes)
+    {
+        UAnimInstance* Inst = Mesh->GetAnimInstance();
+        UE_LOG(LogTemp, Warning, TEXT("[FAC]   [%s]  AnimInstance: %s"),
+            *Mesh->GetName(),
+            Inst ? *Inst->GetClass()->GetName() : TEXT("NULL"));
+    }
+
+    for (USkeletalMeshComponent* Mesh : SkelMeshes)
+    {
+        if (Mesh->GetName().Equals(TEXT("Face"), ESearchCase::IgnoreCase))
         {
-            UE_LOG(LogTemp, Warning, TEXT("FacialAnimationComponent: SkeletalMesh found"));
-        }
-        else
-        {
-            UE_LOG(LogTemp, Error, TEXT("FacialAnimationComponent: No SkeletalMesh found!"));
+            FaceMeshComponent = Mesh;
+            UE_LOG(LogTemp, Warning, TEXT("[FAC] >>> Face mesh found: %s"), *Mesh->GetName());
+            break;
         }
     }
-    
-    // Карта символов
+
+    if (!FaceMeshComponent)
+    {
+        for (USkeletalMeshComponent* Mesh : SkelMeshes)
+        {
+            FString N = Mesh->GetName().ToLower();
+            if (N.Contains(TEXT("body")) || N.Contains(TEXT("hair")) ||
+                N.Contains(TEXT("eyebrow")) || N.Contains(TEXT("fuzz")) ||
+                N.Contains(TEXT("eyelash")) || N.Contains(TEXT("beard")))
+            {
+                continue;
+            }
+
+            if (Mesh->GetAnimInstance())
+            {
+                FaceMeshComponent = Mesh;
+                UE_LOG(LogTemp, Warning, TEXT("[FAC] >>> Fallback face mesh: %s"), *Mesh->GetName());
+                break;
+            }
+        }
+    }
+
+    if (!FaceMeshComponent)
+    {
+        UE_LOG(LogTemp, Error, TEXT("[FAC] CRITICAL: Face mesh not found!"));
+        return;
+    }
+
+    UAnimInstance* AnimInst = FaceMeshComponent->GetAnimInstance();
+    if (!AnimInst)
+    {
+        UE_LOG(LogTemp, Error, TEXT("[FAC] CRITICAL: AnimInstance is NULL on Face mesh!"));
+        UE_LOG(LogTemp, Error, TEXT("[FAC] Go to BP_MetaHuman_Avatarus -> Face component -> Anim Class -> set ABP_Face_PostProcess"));
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[FAC] AnimInstance OK: %s"), *AnimInst->GetClass()->GetName());
+    }
+
+    BuildCharMap();
+    NextBlinkTime = FMath::RandRange(2.0f, 5.0f);
+}
+
+void UFacialAnimationComponent::BuildCharMap()
+{
     CharToAnimMap.Add(TEXT('а'), AS_A1);
     CharToAnimMap.Add(TEXT('я'), AS_A1);
     CharToAnimMap.Add(TEXT('о'), AS_O1);
@@ -36,6 +95,7 @@ void UFacialAnimationComponent::BeginPlay()
     CharToAnimMap.Add(TEXT('е'), AS_E1);
     CharToAnimMap.Add(TEXT('и'), AS_I1);
     CharToAnimMap.Add(TEXT('ы'), AS_I1);
+    CharToAnimMap.Add(TEXT('й'), AS_I1);
     CharToAnimMap.Add(TEXT('б'), AS_B1);
     CharToAnimMap.Add(TEXT('п'), AS_B1);
     CharToAnimMap.Add(TEXT('м'), AS_M1);
@@ -56,132 +116,151 @@ void UFacialAnimationComponent::BeginPlay()
     CharToAnimMap.Add(TEXT('х'), AS_K1);
     CharToAnimMap.Add(TEXT('л'), AS_L1);
     CharToAnimMap.Add(TEXT('р'), AS_R1);
-    CharToAnimMap.Add(TEXT('й'), AS_I1);
-    
-    NextBlinkTime = FMath::RandRange(2.0f, 5.0f);
+
+    int32 NullCount = 0;
+    for (auto& Pair : CharToAnimMap)
+    {
+        if (!Pair.Value) NullCount++;
+    }
+
+    if (NullCount > 0)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[FAC] WARNING: %d viseme slots are NULL"), NullCount);
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[FAC] All %d viseme slots assigned OK."), CharToAnimMap.Num());
+    }
 }
 
 void UFacialAnimationComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-    
+
     if (bIsSpeaking)
     {
         CurrentSpeechTime += DeltaTime;
-        
         if (CurrentSpeechTime >= TotalSpeechDuration)
         {
             StopSpeaking();
             return;
         }
-        
+
         TimeInCurrentViseme += DeltaTime;
-        
         if (TimeInCurrentViseme >= CurrentVisemeDuration)
         {
-            CurrentVisemeIndex++;
-            
-            if (CurrentVisemeIndex >= VisemeSequence.Num())
-            {
-                CurrentVisemeIndex = FMath::Max(0, VisemeSequence.Num() - 1);
-            }
-            
-            PlayCurrentViseme();
             TimeInCurrentViseme = 0.0f;
+            CurrentVisemeIndex++;
+            if (CurrentVisemeIndex >= VisemeQueue.Num())
+            {
+                CurrentVisemeIndex = FMath::Max(0, VisemeQueue.Num() - 1);
+            }
+            PlayVisemeAtIndex(CurrentVisemeIndex);
         }
     }
-    
-    // Моргание (опционально)
-    UpdateBlinking(DeltaTime);
-}
 
-void UFacialAnimationComponent::PlayCurrentViseme()
-{
-    if (!SkeletalMeshComponent) return;
-    if (VisemeSequence.Num() == 0) return;
-    if (CurrentVisemeIndex >= VisemeSequence.Num()) return;
-    
-    UAnimSequence* AnimToPlay = VisemeSequence[CurrentVisemeIndex];
-    if (!AnimToPlay) return;
-    
-    SkeletalMeshComponent->SetAnimationMode(EAnimationMode::AnimationSingleNode);
-    SkeletalMeshComponent->SetAnimation(AnimToPlay);
-    SkeletalMeshComponent->Play(true);
+    UpdateBlinking(DeltaTime);
 }
 
 void UFacialAnimationComponent::StartSpeaking(const FString& Text, float Duration)
 {
     if (Text.IsEmpty()) return;
-    if (!SkeletalMeshComponent)
+
+    if (!FaceMeshComponent)
     {
-        UE_LOG(LogTemp, Error, TEXT("StartSpeaking: No SkeletalMesh!"));
+        UE_LOG(LogTemp, Error, TEXT("[FAC] StartSpeaking: FaceMeshComponent is NULL!"));
         return;
     }
-    
-    StopSpeaking();
-    
-    bIsSpeaking = true;
-    CurrentSpeechTime = 0.0f;
-    TotalSpeechDuration = (Duration > 0.0f) ? Duration : Text.Len() * 0.12f;
-    TimeInCurrentViseme = 0.0f;
-    
-    VisemeSequence.Empty();
-    FString LowerText = Text.ToLower();
-    
-    for (int32 i = 0; i < LowerText.Len(); i++)
+
+    UAnimInstance* AnimInst = FaceMeshComponent->GetAnimInstance();
+    if (!AnimInst)
     {
-        TCHAR Char = LowerText[i];
-        
-        if (Char == ' ' || Char == ',' || Char == '.' || Char == '!' || Char == '?' || Char == '-' || Char == ';' || Char == ':')
+        UE_LOG(LogTemp, Error, TEXT("[FAC] StartSpeaking: AnimInstance is NULL!"));
+        return;
+    }
+
+    StopSpeaking();
+
+    FString Lower = Text.ToLower();
+    static const FString Skip = TEXT(" ,.!?-;:\n\r\"'()[]");
+
+    for (int32 i = 0; i < Lower.Len(); i++)
+    {
+        TCHAR Ch = Lower[i];
+        if (Skip.Contains(FString(1, &Ch))) continue;
+
+        UAnimSequence** Found = CharToAnimMap.Find(Ch);
+        if (Found && *Found)
         {
-            continue;
-        }
-        
-        UAnimSequence** FoundAnim = CharToAnimMap.Find(Char);
-        if (FoundAnim && *FoundAnim)
-        {
-            VisemeSequence.Add(*FoundAnim);
+            VisemeQueue.Add(*Found);
         }
         else if (AS_Idle)
         {
-            VisemeSequence.Add(AS_Idle);
+            VisemeQueue.Add(AS_Idle);
         }
     }
-    
-    if (VisemeSequence.Num() == 0)
+
+    if (VisemeQueue.Num() == 0)
     {
-        StopSpeaking();
+        UE_LOG(LogTemp, Warning, TEXT("[FAC] No visemes for text: %s"), *Text);
         return;
     }
-    
-    CurrentVisemeDuration = TotalSpeechDuration / VisemeSequence.Num();
+
+    TotalSpeechDuration = (Duration > 0.0f) ? Duration : Text.Len() * 0.08f;
+    CurrentVisemeDuration = FMath::Clamp(TotalSpeechDuration / VisemeQueue.Num(), 0.05f, 0.3f);
+    bIsSpeaking = true;
+    CurrentSpeechTime = 0.0f;
     CurrentVisemeIndex = 0;
     TimeInCurrentViseme = 0.0f;
-    
-    PlayCurrentViseme();
-    
-    UE_LOG(LogTemp, Log, TEXT("StartSpeaking: %d visemes, duration %.2f"), VisemeSequence.Num(), TotalSpeechDuration);
+
+    PlayVisemeAtIndex(0);
+}
+
+void UFacialAnimationComponent::PlayVisemeAtIndex(int32 Index)
+{
+    if (!FaceMeshComponent) return;
+    if (!VisemeQueue.IsValidIndex(Index)) return;
+
+    UAnimSequence* Anim = VisemeQueue[Index];
+    if (!Anim) return;
+
+    UAnimInstance* AnimInst = FaceMeshComponent->GetAnimInstance();
+    if (!AnimInst) return;
+
+    AnimInst->PlaySlotAnimationAsDynamicMontage(
+        Anim, VisemeSlotName,
+        VisemeBlendIn, VisemeBlendOut,
+        VisemePlayRate, 1, 0.0f
+    );
 }
 
 void UFacialAnimationComponent::StopSpeaking()
 {
     if (!bIsSpeaking) return;
-    
+
     bIsSpeaking = false;
-    VisemeSequence.Empty();
-    CurrentVisemeIndex = 0;
     CurrentSpeechTime = 0.0f;
-    
-    if (SkeletalMeshComponent && AS_Idle)
+    CurrentVisemeIndex = 0;
+    TimeInCurrentViseme = 0.0f;
+    VisemeQueue.Empty();
+
+    if (FaceMeshComponent && AS_Idle)
     {
-        SkeletalMeshComponent->SetAnimationMode(EAnimationMode::AnimationSingleNode);
-        SkeletalMeshComponent->SetAnimation(AS_Idle);
-        SkeletalMeshComponent->Play(true);
+        UAnimInstance* AnimInst = FaceMeshComponent->GetAnimInstance();
+        if (AnimInst)
+        {
+            AnimInst->PlaySlotAnimationAsDynamicMontage(
+                AS_Idle, VisemeSlotName,
+                0.1f, 0.1f, 1.0f, 1, 0.0f
+            );
+        }
     }
 }
 
 void UFacialAnimationComponent::UpdateBlinking(float DeltaTime)
 {
+    if (!FaceMeshComponent) return;
+
     if (!bIsBlinking)
     {
         TimeSinceLastBlink += DeltaTime;
@@ -193,53 +272,57 @@ void UFacialAnimationComponent::UpdateBlinking(float DeltaTime)
             NextBlinkTime = FMath::RandRange(2.0f, 5.0f);
         }
     }
-    
+
     if (bIsBlinking)
     {
         BlinkProgress += DeltaTime / 0.15f;
-        
-        float BlinkValue = 1.0f;
+        float V = 0.0f;
         if (BlinkProgress < 0.5f)
-            BlinkValue = BlinkProgress * 2.0f;
+        {
+            V = BlinkProgress * 2.0f;
+        }
         else if (BlinkProgress < 1.0f)
-            BlinkValue = 1.0f - (BlinkProgress - 0.5f) * 2.0f;
-        else
-            BlinkValue = 0.0f;
-        
+        {
+            V = 1.0f - (BlinkProgress - 0.5f) * 2.0f;
+        }
+
         if (BlinkProgress >= 1.0f)
         {
             bIsBlinking = false;
+            V = 0.0f;
         }
-        
-        SetBlendshapeValue("EyeBlinkLeft", BlinkValue);
-        SetBlendshapeValue("EyeBlinkRight", BlinkValue);
-    }
-}
 
-void UFacialAnimationComponent::SetBlendshapeValue(const FString& BlendshapeName, float Value)
-{
-    if (SkeletalMeshComponent)
-    {
-        FName MorphName = FName(*BlendshapeName);
-        SkeletalMeshComponent->SetMorphTarget(MorphName, Value);
-    }
-}
-
-void UFacialAnimationComponent::ResetBlendshapes()
-{
-    if (SkeletalMeshComponent)
-    {
-        SkeletalMeshComponent->ClearMorphTargets();
+        FaceMeshComponent->SetMorphTarget(FName("eyeBlink_L"), V, false);
+        FaceMeshComponent->SetMorphTarget(FName("eyeBlink_R"), V, false);
     }
 }
 
 void UFacialAnimationComponent::SetEmotion(const FString& Emotion, float Intensity)
 {
-    CurrentEmotion = Emotion;
-    EmotionIntensity = FMath::Clamp(Intensity, 0.0f, 1.0f);
-}
+    if (!FaceMeshComponent) return;
+    float I = FMath::Clamp(Intensity, 0.0f, 1.0f);
 
-const TArray<FString> UFacialAnimationComponent::GetARKitBlendshapeNames()
-{
-    return { "EyeBlinkLeft", "EyeBlinkRight", "JawOpen", "MouthSmileLeft", "MouthSmileRight" };
+    if (Emotion.Equals(TEXT("happy"), ESearchCase::IgnoreCase))
+    {
+        FaceMeshComponent->SetMorphTarget(FName("mouthSmileLeft"), 0.6f * I, false);
+        FaceMeshComponent->SetMorphTarget(FName("mouthSmileRight"), 0.6f * I, false);
+        FaceMeshComponent->SetMorphTarget(FName("mouthFrownLeft"), 0.0f, false);
+        FaceMeshComponent->SetMorphTarget(FName("mouthFrownRight"), 0.0f, false);
+    }
+    else if (Emotion.Equals(TEXT("sad"), ESearchCase::IgnoreCase))
+    {
+        FaceMeshComponent->SetMorphTarget(FName("mouthFrownLeft"), 0.5f * I, false);
+        FaceMeshComponent->SetMorphTarget(FName("mouthFrownRight"), 0.5f * I, false);
+        FaceMeshComponent->SetMorphTarget(FName("browInnerUp"), 0.4f * I, false);
+        FaceMeshComponent->SetMorphTarget(FName("mouthSmileLeft"), 0.0f, false);
+        FaceMeshComponent->SetMorphTarget(FName("mouthSmileRight"), 0.0f, false);
+    }
+    else
+    {
+        FaceMeshComponent->SetMorphTarget(FName("mouthSmileLeft"), 0.0f, false);
+        FaceMeshComponent->SetMorphTarget(FName("mouthSmileRight"), 0.0f, false);
+        FaceMeshComponent->SetMorphTarget(FName("mouthFrownLeft"), 0.0f, false);
+        FaceMeshComponent->SetMorphTarget(FName("mouthFrownRight"), 0.0f, false);
+        FaceMeshComponent->SetMorphTarget(FName("browInnerUp"), 0.0f, false);
+    }
 }

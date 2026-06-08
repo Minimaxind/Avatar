@@ -39,14 +39,14 @@ void UAvatarGameInstance::SendUserMessage(const FString& Message)
     OnChatMessageReceived.Broadcast(Message);
     
     FString Context = TEXT("Ты виртуальный ассистент по имени ") + AvatarName + 
-                      TEXT(". Отвечай дружелюбно и по делу на русском языке. Отвечай кратко, не более 2-3 предложений.\n\n");
+                      TEXT(". Отвечай дружелюбно и по делу на русском языке. Отвечай кратко, не более 2-3 предложений. Запомни, тебя зовут Ави, ты персональный виртуальный аватар студии ДримМейкерс, если тебя спросят представься, обязательно упомяни к какой студии ты принадлежишь!\n\n");
     
     int32 StartIndex = FMath::Max(0, ChatHistory.Num() - 10);
     for (int32 i = StartIndex; i < ChatHistory.Num(); i++)
     {
         Context += ChatHistory[i] + TEXT("\n");
     }
-    Context += TEXT("\nАссистент: ");
+    Context += TEXT("\nАви: ");
     
     if (LLMClient)
     {

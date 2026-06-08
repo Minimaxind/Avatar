@@ -13,8 +13,11 @@
   <component name="ChangeListManager">
     <list default="true" id="aa28594b-f1f5-47b1-8ac5-36dd4b14e907" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Avatar/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Avatar/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Config/DefaultEngine.ini" beforeDir="false" afterPath="$PROJECT_DIR$/Config/DefaultEngine.ini" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Content/AvatarProject/Blueprints/BP_AvatarCharacter.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/AvatarProject/Blueprints/BP_AvatarCharacter.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/AvatarProject/MainLevel.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/AvatarProject/MainLevel.umap" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/Avatar/Private/Avatar/FacialAnimationComponent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Avatar/Private/Avatar/FacialAnimationComponent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Avatar/Private/Core/AvatarGameInstance.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Avatar/Private/Core/AvatarGameInstance.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/Avatar/Public/Avatar/FacialAnimationComponent.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Avatar/Public/Avatar/FacialAnimationComponent.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -25,8 +28,9 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="ProblemsViewState">
-    <option name="selectedTabId" value="CurrentFile" />
+    <option name="selectedTabId" value="Toolset" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 6
@@ -159,12 +163,18 @@
       <workItem from="1778475019397" duration="4841000" />
       <workItem from="1778488280358" duration="7916000" />
       <workItem from="1778765792701" duration="970000" />
+      <workItem from="1779056537149" duration="1327000" />
+      <workItem from="1780776581153" duration="24000" />
+      <workItem from="1780820965663" duration="1215000" />
+      <workItem from="1780823835351" duration="637000" />
+      <workItem from="1780833829264" duration="5707000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
+  <component name="UnityCheckinConfiguration" checkUnsavedScenes="true" />
   <component name="UnityProjectConfiguration" hasMinimizedUI="false" />
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
