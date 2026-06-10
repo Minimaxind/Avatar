@@ -18,7 +18,13 @@ class AVATAR_API UAvatarGameInstance : public UGameInstance
 	GENERATED_BODY()
     
 public:
-	UAvatarGameInstance();  // Конструктор должен быть реализован
+	UFUNCTION(BlueprintCallable, Category = "Avatar")
+	void RefreshAvatarActor();
+
+	// В AvatarGameInstance.cpp
+	
+	
+	UAvatarGameInstance();
     
 	virtual void Init() override;
 	virtual void Shutdown() override;
@@ -32,7 +38,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Chat")
 	void SendUserMessage(const FString& Message);
     
-	UFUNCTION()  // Уберите BlueprintCallable если не используется в BP
+	UFUNCTION()
 	void OnTTSStarted(float Duration);
     
 	UPROPERTY(BlueprintReadOnly, Category = "Chat")
@@ -40,16 +46,26 @@ public:
     
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
 	FString AvatarName = TEXT("Ассистент");
-    
+
+	// Старый указатель — оставляем для совместимости с AvatarCharacter.cpp
 	UPROPERTY()
 	AAvatarCharacter* AvatarCharacter;
+
+	// Новый универсальный указатель — работает с любым актором у которого есть FacialAnimationComponent
+	UPROPERTY()
+	AActor* AvatarActor;
     
 	FString CurrentResponse;
     
 private:
+    bool bIsPlayingTTS = false;
+    
 	UPROPERTY()
 	ULLMClient* LLMClient;
     
 	UPROPERTY()
 	UTTSClient* TTSClient;
+
+	// Ищет актора с FacialAnimationComponent в мире
+	AActor* FindAvatarActor();
 };

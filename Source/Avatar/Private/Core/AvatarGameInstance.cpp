@@ -1,9 +1,10 @@
 ﻿// Core/AvatarGameInstance.cpp
-#include "Core/AvatarGameInstance.h"  // ДОЛЖНО БЫТЬ ПЕРВОЙ СТРОКОЙ!
+#include "Core/AvatarGameInstance.h"
 
 #include "AI/LLMClient.h"
 #include "AI/TTSClient.h"
 #include "Avatar/AvatarCharacter.h"
+#include "Avatar/FacialAnimationComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 UAvatarGameInstance::UAvatarGameInstance()
@@ -29,6 +30,35 @@ void UAvatarGameInstance::Init()
 void UAvatarGameInstance::Shutdown()
 {
     Super::Shutdown();
+}
+
+// Ищем актора у которого есть FacialAnimationComponent
+AActor* UAvatarGameInstance::FindAvatarActor()
+{
+    UWorld* World = GetWorld();
+    if (!World) return nullptr;
+
+    TArray<AActor*> AllActors;
+    UGameplayStatics::GetAllActorsOfClass(World, AActor::StaticClass(), AllActors);
+
+    for (AActor* Actor : AllActors)
+    {
+        // Пропускаем AvatarCharacter по умолчанию (у него нет Face меша)
+        if (Actor->IsA<AAvatarCharacter>() && !Actor->GetName().Contains(TEXT("MetaHuman")))
+        {
+            continue;
+        }
+        
+        UFacialAnimationComponent* FAC = Actor->FindComponentByClass<UFacialAnimationComponent>();
+        if (FAC)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("[GI] Found avatar actor: %s"), *Actor->GetName());
+            return Actor;
+        }
+    }
+
+    UE_LOG(LogTemp, Error, TEXT("[GI] Avatar actor with FacialAnimationComponent not found!"));
+    return nullptr;
 }
 
 void UAvatarGameInstance::SendUserMessage(const FString& Message)
@@ -59,18 +89,10 @@ void UAvatarGameInstance::SendUserMessage(const FString& Message)
             
             OnAvatarResponse.Broadcast(Response);
             
-            if (!AvatarCharacter)
+            // Ищем актора с FacialAnimationComponent если ещё не нашли
+            if (!AvatarActor)
             {
-                UWorld* World = GetWorld();
-                if (World)
-                {
-                    TArray<AActor*> FoundActors;
-                    UGameplayStatics::GetAllActorsOfClass(World, AAvatarCharacter::StaticClass(), FoundActors);
-                    if (FoundActors.Num() > 0)
-                    {
-                        AvatarCharacter = Cast<AAvatarCharacter>(FoundActors[0]);
-                    }
-                }
+                AvatarActor = FindAvatarActor();
             }
             
             if (TTSClient)
@@ -81,10 +103,55 @@ void UAvatarGameInstance::SendUserMessage(const FString& Message)
     }
 }
 
+void UAvatarGameInstance::RefreshAvatarActor()
+{
+    AActor* NewActor = FindAvatarActor();
+    if (NewActor != AvatarActor)
+    {
+        AvatarActor = NewActor;
+        if (AvatarActor)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("[GI] Avatar actor updated to: %s"), *AvatarActor->GetName());
+        }
+    }
+}
+
 void UAvatarGameInstance::OnTTSStarted(float Duration)
 {
-    if (AvatarCharacter && !CurrentResponse.IsEmpty())
+    // Защита от рекурсии
+    if (bIsPlayingTTS) return;
+    bIsPlayingTTS = true;
+    
+    if (!AvatarActor)
     {
-        AvatarCharacter->Speak(CurrentResponse, Duration);
+        AvatarActor = FindAvatarActor();
+    }
+
+    if (!AvatarActor || CurrentResponse.IsEmpty())
+    {
+        bIsPlayingTTS = false;
+        return;
+    }
+
+    UFacialAnimationComponent* FAC = AvatarActor->FindComponentByClass<UFacialAnimationComponent>();
+    if (FAC)
+    {
+        // ИСПРАВЛЕНО: Запускаем полноценную анимацию речи вместо тестового метода EmergencyTest
+        FAC->StartSpeaking(CurrentResponse, Duration);
+    }
+    
+    // Сбрасываем флаг после окончания речи
+    UWorld* World = GetWorld();
+    if (World && TTSClient)
+    {
+        FTimerHandle ResetTimer;
+        World->GetTimerManager().SetTimer(ResetTimer, [this]()
+        {
+            bIsPlayingTTS = false;
+        }, Duration + 0.5f, false);
+    }
+    else
+    {
+        bIsPlayingTTS = false;
     }
 }

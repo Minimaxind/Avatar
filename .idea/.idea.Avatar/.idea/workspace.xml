@@ -13,12 +13,21 @@
   <component name="ChangeListManager">
     <list default="true" id="aa28594b-f1f5-47b1-8ac5-36dd4b14e907" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Avatar/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Avatar/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Config/DefaultEngine.ini" beforeDir="false" afterPath="$PROJECT_DIR$/Config/DefaultEngine.ini" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/AvatarProject/Blueprints/BP_AvatarCharacter.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/AvatarProject/Blueprints/BP_AvatarCharacter.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/AvatarProject/Blueprints/MetaHuman_Avatarus.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/AvatarProject/Blueprints/MetaHuman_Avatarus.uasset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Content/AvatarProject/MainLevel.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/AvatarProject/MainLevel.umap" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/CaptureManager/Imports/Live_Link_Face/assistent_1/IS_D_Depth_assistent_1.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/CaptureManager/Imports/Live_Link_Face/assistent_1/IS_D_Depth_assistent_1.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/CaptureManager/Imports/Live_Link_Face/assistent_1/IS_V_Video_assistent_1.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/CaptureManager/Imports/Live_Link_Face/assistent_1/IS_V_Video_assistent_1.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/MetaHumans/Common/Face/ABP_Face_PostProcess.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/MetaHumans/Common/Face/ABP_Face_PostProcess.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/MetaHumans/Common/Face/ARKit/AS_MetaHuman_ARKit_Mapping.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/MetaHumans/Common/Face/ARKit/AS_MetaHuman_ARKit_Mapping.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/MetaHumans/Common/Face/ARKit/PA_MetaHuman_ARKit_Mapping.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/MetaHumans/Common/Face/ARKit/PA_MetaHuman_ARKit_Mapping.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/MetaHumans/Common/Face/Face_Archetype_Skeleton.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/MetaHumans/Common/Face/Face_Archetype_Skeleton.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/MetaHumans/MetaHuman_Avatarus/BP_MetaHuman_Avatarus.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/MetaHumans/MetaHuman_Avatarus/BP_MetaHuman_Avatarus.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Avatar/Private/Avatar/AvatarCharacter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Avatar/Private/Avatar/AvatarCharacter.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/Avatar/Private/Avatar/FacialAnimationComponent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Avatar/Private/Avatar/FacialAnimationComponent.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/Avatar/Private/Core/AvatarGameInstance.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Avatar/Private/Core/AvatarGameInstance.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Avatar/Private/Core/AvatarGameMode.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Avatar/Private/Core/AvatarGameMode.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/Avatar/Public/Avatar/FacialAnimationComponent.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Avatar/Public/Avatar/FacialAnimationComponent.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Avatar/Public/Core/AvatarGameInstance.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Avatar/Public/Core/AvatarGameInstance.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,21 +49,22 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;C/C++ Project.Avatar.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "C/C++ Project.Avatar.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "master",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "UnrealLogSettings",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager" selected="C/C++ Project.Avatar">
     <configuration name="Avatar" type="CppProject" factoryName="C++ Project">
       <configuration_1 setup="1">
@@ -168,6 +178,12 @@
       <workItem from="1780820965663" duration="1215000" />
       <workItem from="1780823835351" duration="637000" />
       <workItem from="1780833829264" duration="5707000" />
+      <workItem from="1780953696722" duration="1893000" />
+      <workItem from="1780956541564" duration="1036000" />
+      <workItem from="1780958297007" duration="1035000" />
+      <workItem from="1780959962298" duration="1949000" />
+      <workItem from="1780964137204" duration="1043000" />
+      <workItem from="1781022160409" duration="12534000" />
     </task>
     <servers />
   </component>
@@ -196,5 +212,9 @@
         </breakpoint>
       </breakpoints>
     </breakpoint-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

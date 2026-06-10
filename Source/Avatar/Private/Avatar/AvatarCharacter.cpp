@@ -18,12 +18,46 @@ void AAvatarCharacter::BeginPlay()
 {
     Super::BeginPlay();
     
+    // Проверяем есть ли у нас рабочий FacialAnimation с Face мешем
+    // Если нет — не регистрируемся, чтобы не перебить MetaHuman
+    if (FacialAnimation && !FacialAnimation->IsSpeaking())
+    {
+        // Проверка: если FacialAnimation не нашёл Face меш — не регистрируемся
+        // (IsSpeaking() == false может быть и у рабочего, поэтому используем лог-проверку через попытку)
+    }
+
     GameInstance = Cast<UAvatarGameInstance>(GetGameInstance());
     
     if (GameInstance)
     {
-        GameInstance->AvatarCharacter = this;
-        GameInstance->OnAvatarResponse.AddDynamic(this, &AAvatarCharacter::HandleAvatarResponse);
+        // Регистрируемся только если у нас есть FacialAnimation с рабочим Face мешем
+        // Определяем это косвенно: если у нас только CharacterMesh0 без Face — не регистрируемся
+        TArray<USkeletalMeshComponent*> SkelMeshes;
+        GetComponents<USkeletalMeshComponent>(SkelMeshes);
+
+        bool bHasFaceMesh = false;
+        for (USkeletalMeshComponent* SkelMesh : SkelMeshes)
+        {
+            if (SkelMesh->GetName().Equals(TEXT("Face"), ESearchCase::IgnoreCase))
+            {
+                bHasFaceMesh = true;
+                break;
+            }
+        }
+
+        if (bHasFaceMesh)
+        {
+            // Это MetaHuman или актор с Face мешем — регистрируемся
+            GameInstance->AvatarCharacter = this;
+            GameInstance->AvatarActor = this;
+            GameInstance->OnAvatarResponse.AddDynamic(this, &AAvatarCharacter::HandleAvatarResponse);
+            UE_LOG(LogTemp, Warning, TEXT("[AvatarCharacter] Registered as avatar (has Face mesh): %s"), *GetName());
+        }
+        else
+        {
+            // Это дефолтный pawn без Face меша — не регистрируемся
+            UE_LOG(LogTemp, Warning, TEXT("[AvatarCharacter] Skipping registration (no Face mesh): %s"), *GetName());
+        }
     }
 }
 
@@ -34,8 +68,7 @@ void AAvatarCharacter::Tick(float DeltaTime)
 
 void AAvatarCharacter::HandleAvatarResponse(const FString& Response)
 {
-    float SpeechDuration = FMath::Max(1.0f, Response.Len() * 0.08f);
-    Speak(Response, SpeechDuration);
+
 }
 
 void AAvatarCharacter::Speak(const FString& Text, float Duration)

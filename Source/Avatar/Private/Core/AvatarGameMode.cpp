@@ -4,11 +4,7 @@
 
 AAvatarGameMode::AAvatarGameMode()
 {
-	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnClassFinder(TEXT("/Game/Blueprints/BP_AvatarCharacter"));
-	if (PlayerPawnClassFinder.Class != nullptr)
-	{
-		DefaultPawnClass = PlayerPawnClassFinder.Class;
-	}
+	
 }
 
 void AAvatarGameMode::BeginPlay()
